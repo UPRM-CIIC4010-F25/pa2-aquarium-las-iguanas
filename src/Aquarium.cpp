@@ -30,6 +30,21 @@ void PlayerCreature::move() {
     this->bounce();
 }
 
+void PlayerCreature::bounceOff(const std::shared_ptr<Creature>& other) {
+    float dx = m_x - other->getX();
+    float dy = m_y - other->getY();
+    float dist = sqrt(dx*dx + dy*dy);
+    if(dist == 0) dist = 0.1f; // prevent divide by zero
+    float nx = dx / dist;
+    float ny = dy / dist;
+
+    float overlap = getCollisionRadius() + other->getCollisionRadius() - dist;
+    if(overlap > 0) {
+        m_x += nx * overlap;
+        m_y += ny * overlap;
+    }
+}
+
 void PlayerCreature::reduceDamageDebounce() {
     if (m_damage_debounce > 0) {
         --m_damage_debounce;
@@ -282,12 +297,17 @@ void AquariumGameScene::Update(){
     if (this->updateControl.tick()) {
         event = DetectAquariumCollisions(this->m_aquarium, this->m_player);
         if (event != nullptr && event->isCollisionEvent()) {
+            this->m_player->bounceOff(event->creatureB);
             ofLogVerbose() << "Collision detected between player and NPC!" << std::endl;
             if(event->creatureB != nullptr){
                 event->print();
                 if(this->m_player->getPower() < event->creatureB->getValue()){
                     ofLogNotice() << "Player is too weak to eat the creature!" << std::endl;
                     this->m_player->loseLife(3*60); // 3 frames debounce, 3 seconds at 60fps
+
+                    //repel after crash
+                    
+
                     if(this->m_player->getLives() <= 0){
                         this->m_lastEvent = std::make_shared<GameEvent>(GameEventType::GAME_OVER, this->m_player, nullptr);
                         return;

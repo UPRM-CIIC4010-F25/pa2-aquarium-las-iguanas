@@ -49,6 +49,7 @@ public:
 
     PlayerCreature(float x, float y, int speed, std::shared_ptr<GameSprite> sprite);
     void move();
+    void bounceOff(const std::shared_ptr<Creature>& other);
     void draw() const;
     void update();
     void changeSpeed(int speed);
