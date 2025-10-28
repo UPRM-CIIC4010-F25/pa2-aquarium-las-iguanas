@@ -1,5 +1,5 @@
 #include "ofApp.h"
-
+#include "ofSoundPlayer.h"
 //--------------------------------------------------------------
 void ofApp::setup(){
 
@@ -54,11 +54,17 @@ void ofApp::setup(){
     ));
 
     ofSetLogLevel(OF_LOG_NOTICE); // Set default log level
+    static ofSoundPlayer ambient;
+    ambient.load("ambient.wav");
+    ambient.setLoop(true);
+    ambient.setVolume(0.3f);
+    ambient.play();
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     
+    ofSoundUpdate();
     if(gameManager->GetActiveSceneName() == GameSceneKindToString(GameSceneKind::GAME_OVER)){
         return; // Stop updating if game is over or exiting
     }

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <algorithm>
 #include "Core.h"
+#include "ofSoundPlayer.h"
 
 
 enum class AquariumCreatureType {
@@ -158,6 +159,7 @@ class AquariumGameScene : public GameScene {
         std::shared_ptr<GameEvent> m_lastEvent;
         string m_name;
         AwaitFrames updateControl{5};
+        ofSoundPlayer ambientMusic;
 };
 
 
