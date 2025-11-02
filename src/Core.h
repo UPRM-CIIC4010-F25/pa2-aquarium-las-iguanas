@@ -100,6 +100,7 @@ public:
     void setBounds(int w, int h);
     void normalize();
     void bounce();
+    void handleWallCollision();
 };
 
 // GameEvents

@@ -28,6 +28,7 @@ void PlayerCreature::move() {
     m_x += m_dx * m_speed;
     m_y += m_dy * m_speed;
     this->bounce();
+    this->handleWallCollision();
 }
 
 void PlayerCreature::bounceOff(const std::shared_ptr<Creature>& other) {
@@ -106,6 +107,7 @@ void NPCreature::move() {
         this->m_sprite->setFlipped(false);
     }
     bounce();
+    this->handleWallCollision();
 }
 
 void NPCreature::draw() const {
@@ -139,6 +141,7 @@ void BiggerFish::move() {
     }
 
     bounce();
+    this->handleWallCollision();
 }
 
 void BiggerFish::draw() const {
@@ -187,6 +190,7 @@ void Aquarium::addAquariumLevel(std::shared_ptr<AquariumLevel> level){
 void Aquarium::update() {
     for (auto& creature : m_creatures) {
         creature->move();
+        creature->handleWallCollision();
     }
     this->Repopulate();
 }

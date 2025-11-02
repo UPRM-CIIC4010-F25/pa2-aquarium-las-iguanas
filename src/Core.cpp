@@ -2,7 +2,33 @@
 
 
 // Creature Inherited Base Behavior
-void Creature::setBounds(int w, int h) { m_width = w; m_height = h; }
+void Creature::setBounds(int w, int h) {
+    m_width = w;
+    m_height = h;
+}
+void Creature::handleWallCollision() {
+    float r = getCollisionRadius();
+
+    if (m_x - r < 0.0f) {
+        m_x = r;
+        if (m_dx < 0) m_dx = -m_dx;
+    }
+
+    if (m_x + r > m_width) {
+        m_x = m_width - r;
+        if (m_dx > 0) m_dx = -m_dx;
+    }
+
+    if (m_y - r < 0.0f) {
+        m_y = r;
+        if (m_dy < 0) m_dy = -m_dy;
+    }
+
+    if (m_y + r > m_height) {
+        m_y = m_height - r;
+        if (m_dy > 0) m_dy = -m_dy;
+    }
+}
 void Creature::normalize() {
     float length = std::sqrt(m_dx * m_dx + m_dy * m_dy);
     if (length != 0) {
