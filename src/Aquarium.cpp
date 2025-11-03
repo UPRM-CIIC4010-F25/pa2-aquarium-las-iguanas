@@ -1,5 +1,6 @@
 #include "Aquarium.h"
 #include <cstdlib>
+#include "ofMain.h"
 
 
 string AquariumCreatureTypeToString(AquariumCreatureType t){
@@ -90,8 +91,10 @@ void PlayerCreature::loseLife(int debounce) {
 // NPCreature Implementation
 NPCreature::NPCreature(float x, float y, int speed, std::shared_ptr<GameSprite> sprite)
 : Creature(x, y, speed, 30, 1, sprite) {
-    m_dx = (rand() % 3 - 1); // -1, 0, or 1
-    m_dy = (rand() % 3 - 1); // -1, 0, or 1
+    do {
+        m_dx = (rand() % 3 - 1);
+        m_dy = (rand() % 3 - 1);
+    } while (m_dx == 0 && m_dy == 0);
     normalize();
 
     m_creatureType = AquariumCreatureType::NPCreature;
@@ -121,8 +124,10 @@ void NPCreature::draw() const {
 
 BiggerFish::BiggerFish(float x, float y, int speed, std::shared_ptr<GameSprite> sprite)
 : NPCreature(x, y, speed, sprite) {
-    m_dx = (rand() % 3 - 1);
-    m_dy = (rand() % 3 - 1);
+    do {
+        m_dx = (rand() % 3 - 1);
+        m_dy = (rand() % 3 - 1);
+    } while (m_dx == 0 && m_dy == 0);
     normalize();
 
     setCollisionRadius(60); // Bigger fish have a larger collision radius
@@ -149,20 +154,89 @@ void BiggerFish::draw() const {
     this->m_sprite->draw(this->m_x, this->m_y);
 }
 
+FastFish::FastFish(float x, float y, int speed, std::shared_ptr<GameSprite> sprite)
+: NPCreature(x, y, speed, sprite) {
+    do {
+        m_dx = (rand() % 3 - 1);
+        m_dy = (rand() % 3 - 1);
+    } while (m_dx == 0 && m_dy == 0);
+    normalize();
+
+    setCollisionRadius(30);
+    m_value = 1;
+    m_creatureType = AquariumCreatureType::FastFish;
+}
+
+void FastFish::move() {
+    m_x += m_dx * (m_speed * 3.0f);
+    m_y += m_dy * (m_speed * 3.0f);
+
+    if (m_dx < 0)
+        m_sprite->setFlipped(true);
+    else
+        m_sprite->setFlipped(false);
+
+    bounce();
+    handleWallCollision();
+}
+
+void FastFish::draw() const {
+    ofLogVerbose() << "FastFish at (" << m_x << ", " << m_y << ") with speed " << m_speed << std::endl;
+    this->m_sprite->draw(this->m_x, this->m_y);
+}
+
+// SlowFish Implementation
+SlowFish::SlowFish(float x, float y, int speed, std::shared_ptr<GameSprite> sprite)
+: NPCreature(x, y, speed, sprite) {
+    do {
+        m_dx = (rand() % 3 - 1);
+        m_dy = (rand() % 3 - 1);
+    } while (m_dx == 0 && m_dy == 0);
+    normalize();
+
+    setCollisionRadius(40);
+    m_value = 4;
+    m_creatureType = AquariumCreatureType::SlowFish;
+}
+
+void SlowFish::move() {
+    m_x += m_dx * (m_speed * 0.2f);
+    m_y += m_dy * (m_speed * 0.2f);
+
+    if (m_dx < 0)
+        m_sprite->setFlipped(true);
+    else
+        m_sprite->setFlipped(false);
+
+    bounce();
+    handleWallCollision();
+}
+
+void SlowFish::draw() const {
+    ofLogVerbose() << "SlowFish at (" << m_x << ", " << m_y << ") with speed " << m_speed << std::endl;
+    this->m_sprite->draw(this->m_x, this->m_y);
+}
+
 
 // AquariumSpriteManager
 AquariumSpriteManager::AquariumSpriteManager(){
     this->m_npc_fish = std::make_shared<GameSprite>("base-fish.png", 70,70);
     this->m_big_fish = std::make_shared<GameSprite>("bigger-fish.png", 120, 120);
+    this->m_fast_fish = std::make_shared<GameSprite>("fast-fish.png", 50, 50);
+    this->m_slow_fish = std::make_shared<GameSprite>("slow-fish.png", 60, 60);
 }
 
 std::shared_ptr<GameSprite> AquariumSpriteManager::GetSprite(AquariumCreatureType t){
     switch(t){
         case AquariumCreatureType::BiggerFish:
             return std::make_shared<GameSprite>(*this->m_big_fish);
-            
+
         case AquariumCreatureType::NPCreature:
             return std::make_shared<GameSprite>(*this->m_npc_fish);
+        case AquariumCreatureType::FastFish:
+            return std::make_shared<GameSprite>(*this->m_fast_fish);
+        case AquariumCreatureType::SlowFish:
+            return std::make_shared<GameSprite>(*this->m_slow_fish);
         default:
             return nullptr;
     }
@@ -237,6 +311,12 @@ void Aquarium::SpawnCreature(AquariumCreatureType type) {
             break;
         case AquariumCreatureType::BiggerFish:
             this->addCreature(std::make_shared<BiggerFish>(x, y, speed, this->m_sprite_manager->GetSprite(AquariumCreatureType::BiggerFish)));
+            break;
+        case AquariumCreatureType::FastFish:
+            this->addCreature(std::make_shared<FastFish>(x, y, speed, this->m_sprite_manager->GetSprite(AquariumCreatureType::FastFish)));
+            break;
+        case AquariumCreatureType::SlowFish:
+            this->addCreature(std::make_shared<SlowFish>(x, y, speed, this->m_sprite_manager->GetSprite(AquariumCreatureType::SlowFish)));
             break;
         default:
             ofLogError() << "Unknown creature type to spawn!";

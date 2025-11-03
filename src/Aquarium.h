@@ -10,7 +10,9 @@
 
 enum class AquariumCreatureType {
     NPCreature,
-    BiggerFish
+    BiggerFish,
+    FastFish,
+    SlowFish
 };
 
 string AquariumCreatureTypeToString(AquariumCreatureType t);
@@ -30,6 +32,7 @@ class AquariumLevelPopulationNode{
 
 class AquariumLevel : public GameLevel {
     public:
+        AquariumLevel() : GameLevel(0), m_level_score(0), m_level_number(0), m_targetScore(0) {}
         AquariumLevel(int levelNumber, int targetScore)
         : GameLevel(levelNumber), m_level_score(0), m_targetScore(targetScore){};
         void ConsumePopulation(AquariumCreatureType creature, int power);
@@ -40,6 +43,7 @@ class AquariumLevel : public GameLevel {
     protected:
         std::vector<std::shared_ptr<AquariumLevelPopulationNode>> m_levelPopulation;
         int m_level_score;
+        int m_level_number;
         int m_targetScore;
 
 };
@@ -88,9 +92,23 @@ protected:
 
 };
 
+
 class BiggerFish : public NPCreature {
 public:
     BiggerFish(float x, float y, int speed, std::shared_ptr<GameSprite> sprite);
+    void move() override;
+    void draw() const override;
+};
+class FastFish : public NPCreature {
+public:
+    FastFish(float x, float y, int speed, std::shared_ptr<GameSprite> sprite);
+    void move() override;
+    void draw() const override;
+};
+
+class SlowFish : public NPCreature {
+public:
+    SlowFish(float x, float y, int speed, std::shared_ptr<GameSprite> sprite);
     void move() override;
     void draw() const override;
 };
@@ -104,6 +122,8 @@ class AquariumSpriteManager {
     private:
         std::shared_ptr<GameSprite> m_npc_fish;
         std::shared_ptr<GameSprite> m_big_fish;
+        std::shared_ptr<GameSprite> m_fast_fish;
+        std::shared_ptr<GameSprite> m_slow_fish;
 };
 
 
@@ -120,7 +140,7 @@ public:
     void setMaxPopulation(int n) { m_maxPopulation = n; }
     void Repopulate();
     void SpawnCreature(AquariumCreatureType type);
-    
+
     std::shared_ptr<Creature> getCreatureAt(int index);
     int getCreatureCount() const { return m_creatures.size(); }
     int getWidth() const { return m_width; }
@@ -168,7 +188,8 @@ class Level_0 : public AquariumLevel  {
     public:
         Level_0(int levelNumber, int targetScore): AquariumLevel(levelNumber, targetScore){
             this->m_levelPopulation.push_back(std::make_shared<AquariumLevelPopulationNode>(AquariumCreatureType::NPCreature, 10));
-
+            this->m_levelPopulation.push_back(std::make_shared<AquariumLevelPopulationNode>(AquariumCreatureType::FastFish, 3));
+            this->m_levelPopulation.push_back(std::make_shared<AquariumLevelPopulationNode>(AquariumCreatureType::SlowFish, 2));
         };
         std::vector<AquariumCreatureType> Repopulate() override;
 
@@ -177,7 +198,8 @@ class Level_1 : public AquariumLevel  {
     public:
         Level_1(int levelNumber, int targetScore): AquariumLevel(levelNumber, targetScore){
             this->m_levelPopulation.push_back(std::make_shared<AquariumLevelPopulationNode>(AquariumCreatureType::NPCreature, 20));
-
+            this->m_levelPopulation.push_back(std::make_shared<AquariumLevelPopulationNode>(AquariumCreatureType::FastFish, 3));
+            this->m_levelPopulation.push_back(std::make_shared<AquariumLevelPopulationNode>(AquariumCreatureType::SlowFish, 2));
         };
         std::vector<AquariumCreatureType> Repopulate() override;
 
@@ -188,7 +210,8 @@ class Level_2 : public AquariumLevel  {
         Level_2(int levelNumber, int targetScore): AquariumLevel(levelNumber, targetScore){
             this->m_levelPopulation.push_back(std::make_shared<AquariumLevelPopulationNode>(AquariumCreatureType::NPCreature, 30));
             this->m_levelPopulation.push_back(std::make_shared<AquariumLevelPopulationNode>(AquariumCreatureType::BiggerFish, 5));
-
+            this->m_levelPopulation.push_back(std::make_shared<AquariumLevelPopulationNode>(AquariumCreatureType::FastFish, 3));
+            this->m_levelPopulation.push_back(std::make_shared<AquariumLevelPopulationNode>(AquariumCreatureType::SlowFish, 2));
         };
         std::vector<AquariumCreatureType> Repopulate() override;
 
