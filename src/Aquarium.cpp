@@ -149,11 +149,36 @@ void BiggerFish::draw() const {
     this->m_sprite->draw(this->m_x, this->m_y);
 }
 
+PowerUp::PowerUp(float x, float y, int speed, std::shared_ptr<GameSprite> sprite)
+: NPCreature(x, y, speed, sprite) {
+    m_dx = (rand() % 3 - 1);
+    m_dy = (rand() % 3 - 1);
+    normalize();
+
+    m_value = 0;
+    m_creatureType = AquariumCreatureType::PowerUp;
+    
+}
+
+void PowerUp::move() {
+    
+    m_x += m_dx * (m_speed); 
+    m_y += m_dy * (m_speed);
+
+    bounce();
+    this->handleWallCollision();
+}
+
+void PowerUp::draw() const {
+    ofLogVerbose() << "PowerUp at (" << m_x << ", " << m_y << ") with speed " << m_speed << std::endl;
+    this->m_sprite->draw(this->m_x, this->m_y);
+}
 
 // AquariumSpriteManager
 AquariumSpriteManager::AquariumSpriteManager(){
     this->m_npc_fish = std::make_shared<GameSprite>("base-fish.png", 70,70);
     this->m_big_fish = std::make_shared<GameSprite>("bigger-fish.png", 120, 120);
+    this->m_power_up = std::make_shared<GameSprite>("power-up.png",70,70);
 }
 
 std::shared_ptr<GameSprite> AquariumSpriteManager::GetSprite(AquariumCreatureType t){
@@ -163,6 +188,9 @@ std::shared_ptr<GameSprite> AquariumSpriteManager::GetSprite(AquariumCreatureTyp
             
         case AquariumCreatureType::NPCreature:
             return std::make_shared<GameSprite>(*this->m_npc_fish);
+        
+        case AquariumCreatureType::PowerUp:
+            return std::make_shared<GameSprite>(*this->m_power_up);
         default:
             return nullptr;
     }
@@ -237,6 +265,9 @@ void Aquarium::SpawnCreature(AquariumCreatureType type) {
             break;
         case AquariumCreatureType::BiggerFish:
             this->addCreature(std::make_shared<BiggerFish>(x, y, speed, this->m_sprite_manager->GetSprite(AquariumCreatureType::BiggerFish)));
+            break;
+        case AquariumCreatureType::PowerUp:
+            this->addCreature(std::make_shared<PowerUp>(x, y, speed, this->m_sprite_manager->GetSprite(AquariumCreatureType::PowerUp)));
             break;
         default:
             ofLogError() << "Unknown creature type to spawn!";
@@ -318,8 +349,15 @@ void AquariumGameScene::Update(){
                     }
                 }
                 else{
+
                     this->m_aquarium->removeCreature(event->creatureB);
                     this->m_player->addToScore(1, event->creatureB->getValue());
+
+                    auto npcCreature = std::static_pointer_cast<NPCreature>(event->creatureB);
+                    if(npcCreature->GetType()==AquariumCreatureType::PowerUp){
+                        ofLogNotice() << "Power Up accquired " << "!" << std::endl;
+                        this->m_player->changeSpeed(10);
+                    }
                     if (this->m_player->getScore() % 25 == 0){
                         this->m_player->increasePower(1);
                         ofLogNotice() << "Player power increased to " << this->m_player->getPower() << "!" << std::endl;
@@ -372,7 +410,10 @@ void AquariumLevel::ConsumePopulation(AquariumCreatureType creatureType, int pow
             if(node->currentPopulation == 0){
                 return;
             } 
-            node->currentPopulation -= 1;
+            if(node->creatureType != AquariumCreatureType::PowerUp){ // Avoid respawning power up
+                node->currentPopulation -= 1;
+            }
+            
             ofLogVerbose() << "+cosuming from type: " << AquariumCreatureTypeToString(node->creatureType) <<" , currPop: " << node->currentPopulation << endl;
             this->m_level_score += power;
             return;
