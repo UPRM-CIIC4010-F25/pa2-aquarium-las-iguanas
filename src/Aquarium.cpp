@@ -163,7 +163,7 @@ FastFish::FastFish(float x, float y, int speed, std::shared_ptr<GameSprite> spri
     normalize();
 
     setCollisionRadius(30);
-    m_value = 1;
+    m_value = 2;
     m_creatureType = AquariumCreatureType::FastFish;
 }
 
@@ -400,7 +400,7 @@ void AquariumGameScene::Update(){
                 else{
                     this->m_aquarium->removeCreature(event->creatureB);
                     this->m_player->addToScore(1, event->creatureB->getValue());
-                    if (this->m_player->getScore() % 25 == 0){
+                    if (this->m_player->getScore() % 50 == 0){
                         this->m_player->increasePower(1);
                         ofLogNotice() << "Player power increased to " << this->m_player->getPower() << "!" << std::endl;
                     }
@@ -470,6 +470,7 @@ bool AquariumLevel::isCompleted(){
 std::vector<AquariumCreatureType> Level_0::Repopulate() {
     std::vector<AquariumCreatureType> toRepopulate;
     for(std::shared_ptr<AquariumLevelPopulationNode> node : this->m_levelPopulation){
+        if (node->creatureType != AquariumCreatureType::NPCreature) continue;
         int delta = node->population - node->currentPopulation;
         ofLogVerbose() << "to Repopulate :  " << delta << endl;
         if(delta >0){
@@ -486,6 +487,8 @@ std::vector<AquariumCreatureType> Level_0::Repopulate() {
 std::vector<AquariumCreatureType> Level_1::Repopulate() {
     std::vector<AquariumCreatureType> toRepopulate;
     for(std::shared_ptr<AquariumLevelPopulationNode> node : this->m_levelPopulation){
+        if (node->creatureType != AquariumCreatureType::NPCreature &&
+            node->creatureType != AquariumCreatureType::FastFish) continue;
         int delta = node->population - node->currentPopulation;
         if(delta >0){
             for(int i=0; i<delta; i++){
@@ -500,6 +503,9 @@ std::vector<AquariumCreatureType> Level_1::Repopulate() {
 std::vector<AquariumCreatureType> Level_2::Repopulate() {
     std::vector<AquariumCreatureType> toRepopulate;
     for(std::shared_ptr<AquariumLevelPopulationNode> node : this->m_levelPopulation){
+        if (node->creatureType != AquariumCreatureType::NPCreature &&
+            node->creatureType != AquariumCreatureType::FastFish &&
+            node->creatureType != AquariumCreatureType::SlowFish) continue;
         int delta = node->population - node->currentPopulation;
         if(delta >0){
             for(int i=0; i<delta; i++){
@@ -509,4 +515,65 @@ std::vector<AquariumCreatureType> Level_2::Repopulate() {
         }
     }
     return toRepopulate;
+}
+
+std::vector<AquariumCreatureType> Level_3::Repopulate() {
+    std::vector<AquariumCreatureType> toRepopulate;
+    for (std::shared_ptr<AquariumLevelPopulationNode> node : this->m_levelPopulation) {
+        if (node->creatureType != AquariumCreatureType::NPCreature &&
+            node->creatureType != AquariumCreatureType::FastFish &&
+            node->creatureType != AquariumCreatureType::SlowFish &&
+            node->creatureType != AquariumCreatureType::BiggerFish) continue;
+        int delta = node->population - node->currentPopulation;
+        if (delta > 0) {
+            for (int i = 0; i < delta; i++) {
+                toRepopulate.push_back(node->creatureType);
+            }
+            node->currentPopulation += delta;
+        }
+    }
+    return toRepopulate;
+}
+
+
+std::vector<AquariumCreatureType> Level_4::Repopulate() {
+    std::vector<AquariumCreatureType> toRepopulate;
+    for (std::shared_ptr<AquariumLevelPopulationNode> node : this->m_levelPopulation) {
+        if (node->creatureType != AquariumCreatureType::NPCreature &&
+            node->creatureType != AquariumCreatureType::FastFish &&
+            node->creatureType != AquariumCreatureType::SlowFish &&
+            node->creatureType != AquariumCreatureType::BiggerFish) continue;
+        int delta = node->population - node->currentPopulation;
+        if (delta > 0) {
+            for (int i = 0; i < delta; i++) {
+                toRepopulate.push_back(node->creatureType);
+            }
+            node->currentPopulation += delta;
+        }
+    }
+
+    int chaosChance = rand() % 5; 
+    if (chaosChance == 0) {
+        int randomType = rand() % 4;
+        AquariumCreatureType types[4] = {AquariumCreatureType::NPCreature, AquariumCreatureType::FastFish, AquariumCreatureType::SlowFish, AquariumCreatureType::BiggerFish};
+        toRepopulate.push_back(types[randomType]);
+        ofLogNotice() << "Chaos Mode! A random creature appeared." << std::endl;
+    }
+
+    return toRepopulate;
+}
+
+
+int Aquarium::getCurrentLevelNumber() const {
+    if (m_aquariumlevels.empty()) {
+        return 0;
+    }
+    int selectedLevelIdx = this->currentLevel % this->m_aquariumlevels.size();
+    return this->m_aquariumlevels[selectedLevelIdx]->getLevelNumber();
+}
+
+void Aquarium::spawnFish(AquariumCreatureType type, int count) {
+    for (int i = 0; i < count; i++) {
+        this->SpawnCreature(type);
+    }
 }

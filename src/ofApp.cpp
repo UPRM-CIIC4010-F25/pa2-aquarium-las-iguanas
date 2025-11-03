@@ -35,7 +35,25 @@ void ofApp::setup(){
     myAquarium->addAquariumLevel(std::make_shared<Level_0>(0, 10));
     myAquarium->addAquariumLevel(std::make_shared<Level_1>(1, 15));
     myAquarium->addAquariumLevel(std::make_shared<Level_2>(2, 20));
+    myAquarium->addAquariumLevel(std::make_shared<Level_3>(3, 30));
+    myAquarium->addAquariumLevel(std::make_shared<Level_4>(4, 40));
     myAquarium->Repopulate(); // initial population
+
+    if (myAquarium->getCurrentLevelNumber() == 0) {
+        myAquarium->spawnFish(AquariumCreatureType::NPCreature, 6);
+    } else if (myAquarium->getCurrentLevelNumber() == 1) {
+        myAquarium->spawnFish(AquariumCreatureType::NPCreature, 5);
+        myAquarium->spawnFish(AquariumCreatureType::FastFish, 2);
+    } else if (myAquarium->getCurrentLevelNumber() == 2) {
+        myAquarium->spawnFish(AquariumCreatureType::NPCreature, 4);
+        myAquarium->spawnFish(AquariumCreatureType::FastFish, 3);
+        myAquarium->spawnFish(AquariumCreatureType::SlowFish, 2);
+    } else if (myAquarium->getCurrentLevelNumber() == 3) {
+        myAquarium->spawnFish(AquariumCreatureType::NPCreature, 3);
+        myAquarium->spawnFish(AquariumCreatureType::FastFish, 3);
+        myAquarium->spawnFish(AquariumCreatureType::SlowFish, 2);
+        myAquarium->spawnFish(AquariumCreatureType::BiggerFish, 1);
+    }
 
     // now that we are mostly set, lets pass the player and the aquarium downstream
     gameManager->AddScene(std::make_shared<AquariumGameScene>(
@@ -88,6 +106,12 @@ void ofApp::update(){
 void ofApp::draw(){
     backgroundImage.draw(0, 0);
     gameManager->DrawActiveScene();
+    auto aquariumScene = std::static_pointer_cast<AquariumGameScene>(gameManager->GetScene(GameSceneKindToString(GameSceneKind::AQUARIUM_GAME)));
+    if (aquariumScene && gameManager->GetActiveSceneName() == GameSceneKindToString(GameSceneKind::AQUARIUM_GAME)) {
+        int currentLevel = aquariumScene->GetAquarium()->getCurrentLevelNumber();
+        ofSetColor(255, 255, 255);
+        gameOverTitle.drawString("Level: " + std::to_string(currentLevel), 20, 40);
+    }
 }
 
 //--------------------------------------------------------------
