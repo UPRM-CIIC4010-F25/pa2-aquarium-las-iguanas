@@ -501,10 +501,7 @@ bool AquariumLevel::isCompleted(){
     return this->m_level_score >= this->m_targetScore;
 }
 
-
-
-
-std::vector<AquariumCreatureType> Level_0::Repopulate() {
+std::vector<AquariumCreatureType> AquariumLevel::Repopulate(){
     std::vector<AquariumCreatureType> toRepopulate;
     for(std::shared_ptr<AquariumLevelPopulationNode> node : this->m_levelPopulation){
         
@@ -518,75 +515,5 @@ std::vector<AquariumCreatureType> Level_0::Repopulate() {
         }
     }
     return toRepopulate;
-
 }
 
-std::vector<AquariumCreatureType> Level_1::Repopulate() {
-    std::vector<AquariumCreatureType> toRepopulate;
-    for(std::shared_ptr<AquariumLevelPopulationNode> node : this->m_levelPopulation){
-        
-        int delta = node->population - node->currentPopulation;
-        if(delta >0){
-            for(int i=0; i<delta; i++){
-                toRepopulate.push_back(node->creatureType);
-            }
-            node->currentPopulation += delta;
-        }
-    }
-    return toRepopulate;
-}
-
-std::vector<AquariumCreatureType> Level_2::Repopulate() {
-    std::vector<AquariumCreatureType> toRepopulate;
-    for(std::shared_ptr<AquariumLevelPopulationNode> node : this->m_levelPopulation){
-        
-        int delta = node->population - node->currentPopulation;
-        if(delta >0){
-            for(int i=0; i<delta; i++){
-                toRepopulate.push_back(node->creatureType);
-            }
-            node->currentPopulation += delta;
-        }
-    }
-    return toRepopulate;
-}
-
-std::vector<AquariumCreatureType> Level_3::Repopulate() {
-    std::vector<AquariumCreatureType> toRepopulate;
-    for (std::shared_ptr<AquariumLevelPopulationNode> node : this->m_levelPopulation) {
-        
-        int delta = node->population - node->currentPopulation;
-        if (delta > 0) {
-            for (int i = 0; i < delta; i++) {
-                toRepopulate.push_back(node->creatureType);
-            }
-            node->currentPopulation += delta;
-        }
-    }
-    return toRepopulate;
-}
-
-
-std::vector<AquariumCreatureType> Level_4::Repopulate() {
-    std::vector<AquariumCreatureType> toRepopulate;
-    for (std::shared_ptr<AquariumLevelPopulationNode> node : this->m_levelPopulation) {
-        
-        int delta = node->population - node->currentPopulation;
-        if (delta > 0) {
-            for (int i = 0; i < delta; i++) {
-                toRepopulate.push_back(node->creatureType);
-            }
-            node->currentPopulation += delta;
-        }
-    }
-
-    int chaosChance = rand() % 5; 
-    if (chaosChance == 0) {
-        int randomType = rand() % 4;
-        AquariumCreatureType types[4] = {AquariumCreatureType::NPCreature, AquariumCreatureType::FastFish, AquariumCreatureType::SlowFish, AquariumCreatureType::BiggerFish};
-        toRepopulate.push_back(types[randomType]);
-        ofLogNotice() << "Chaos Mode! A random creature appeared." << std::endl;
-    }
-
-    return toRepopulate;
-}
