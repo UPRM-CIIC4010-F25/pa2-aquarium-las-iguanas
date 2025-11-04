@@ -25,7 +25,7 @@ Grading
 | Student Number | Student Name | Student Email |
 |-|-|-|
 |(840-23-4590)| (Luis G. Gerena)| (luis.gerena7@upr.edu) |
-|(STUDENT NUMBER HERE)| (STUDENT NAME HERE)| (STUDENT EMAIL HERE) |
+|(801-15-4542)| (Carlos E. Martinez)| (carlos.martinez32@upr.edu) |
 
 ---
 
